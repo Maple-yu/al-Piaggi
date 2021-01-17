@@ -1,0 +1,64 @@
+log             log.start
+
+variable	numAtoms equal 256
+variable	side equal 18.0
+variable 	mass equal 26.981539
+
+variable	temperature equal 800.
+variable	tempDamp equal 0.1 # approx 0.1 ps
+variable	pressure equal 1.
+variable	pressureDamp equal 10.0
+variable	seed world 74581 # 93734 12832 21934 57383 49172
+
+units           metal
+atom_style      full
+box             tilt large
+region          box block 0 ${side} 0 ${side} 0 ${side}
+create_box      1 box
+create_atoms    1 random ${numAtoms} ${seed} box
+mass            1 ${mass}
+change_box	all triclinic
+
+variable	out_freq2 equal 5000
+
+neigh_modify    delay 10 every 1
+### Argon Potential Parameters ###
+pair_style 	eam/fs
+pair_coeff 	* * ../Al1.eam.fs Al
+
+timestep	0.002 # According to Frenkel and Smit is 0.001
+
+thermo          500
+thermo_style 	custom step temp pe press lx ly lz xy xz yz pxx pyy pzz pxy pxz pyz
+
+minimize 1.0e-2 1.0e-3 100 1000
+
+reset_timestep  0
+
+# NVT
+
+fix             1 all nve
+fix             2 all temp/csvr ${temperature} ${temperature} ${tempDamp} ${seed}
+
+velocity        all create ${temperature} ${seed} dist gaussian
+run             25000
+
+unfix           1
+unfix           2
+
+# NVT
+
+fix             1 all nph iso ${pressure} ${pressure} ${pressureDamp}
+fix             2 all temp/csvr ${temperature} ${temperature} ${tempDamp} ${seed}
+
+run             25000
+
+unfix           1
+unfix           2
+
+# NPT
+
+#timer           timeout 23:50:00 every 5000
+reset_timestep 	0
+write_restart	plumed.restart
+
