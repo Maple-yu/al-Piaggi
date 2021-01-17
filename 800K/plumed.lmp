@@ -1,0 +1,57 @@
+log             log.MD-plumed
+
+variable	n equal 100000000 # 200 ns
+
+
+variable	temperature equal 800.
+variable	tempDamp equal 0.1 # approx 0.1 ps
+variable	pressure equal 1.
+variable	pressureDamp equal 10.0
+variable	seed world 74581 # 93734 12832 21934 57383 49172
+
+units           metal
+atom_style      full
+box             tilt large
+read_restart	plumed.restart
+
+variable	out_freq2 equal 5000
+
+neigh_modify    delay 10 every 1
+### Argon Potential Parameters ###
+pair_style 	eam/fs
+pair_coeff 	* * ../Al1.eam.fs Al
+
+timestep	0.002 # According to Frenkel and Smit is 0.001
+
+thermo          500
+thermo_style 	custom step temp pe press lx ly lz xy xz yz pxx pyy pzz pxy pxz pyz
+
+variable         S equal step
+variable         T equal temp
+variable         Ek equal ke
+variable         E equal etotal
+variable         V equal vol
+
+fix         9 all print 10000 "${S} ${T} ${Ek} ${E} ${V}" file  thermo-${temperature}.txt screen no
+
+#dump            myDump all atom ${out_freq2} dump.plumed
+dump            myDump2 all xyz ${out_freq2} dump.plumed.xyz
+#dump_modify	myDump append yes
+dump_modify	myDump2 element Al append yes
+
+
+fix             1 all plumed plumedfile plumed.dat outfile plumed.out
+fix             2 all nph &
+		x ${pressure} ${pressure} ${pressureDamp} &
+		y ${pressure} ${pressure} ${pressureDamp} &
+		z ${pressure} ${pressure} ${pressureDamp} &
+		xy 0.0 0.0 ${pressureDamp} &
+		yz 0.0 0.0 ${pressureDamp} &
+		xz 0.0 0.0 ${pressureDamp} &
+		couple xyz
+fix             3 all temp/csvr ${temperature} ${temperature} ${tempDamp} ${seed}
+fix		4 all momentum 10000 linear 1 1 1 angular
+
+run             ${n} 
+
+write_data	data.final
