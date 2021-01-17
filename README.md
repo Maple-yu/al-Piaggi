@@ -1,4 +1,4 @@
-# al-Piaggi
+# Al-Piaggi
 This is my learning Files
 ## Piaggi
 The full work is from *[PRL-2017-PairEntropy](https://github.com/PabloPiaggi/PRL-2017-PairEntropy.git)*
