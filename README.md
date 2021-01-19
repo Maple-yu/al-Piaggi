@@ -1,8 +1,8 @@
 # Al-Piaggi
 This is my learning Files
 ## Piaggi
-The full work is *[PRL-2017-PairEntropy](https://github.com/PabloPiaggi/PRL-2017-PairEntropy.git)*
-And I jest learn to use the **PairEntropy**
+The full work is *[PRL-2017-PairEntropy](https://github.com/PabloPiaggi/PRL-2017-PairEntropy.git)*  
+And I jest learn to use the **PairEntropy** CV with *[PLUMED2](https://github.com/plumed/plumed2)* .  
 ## PairEntropy
 The *PairTntropy* file is from here **[PairEntropy.cpp](https://github.com/PabloPiaggi/plumed2/blob/entropyCVcolvar/src/colvar/PairEntropy.cpp)**
 
